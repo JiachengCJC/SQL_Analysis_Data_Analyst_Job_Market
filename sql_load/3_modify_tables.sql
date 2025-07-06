@@ -41,8 +41,3 @@ COPY skills_job_dim
 FROM '/Users/jiacheng/Documents/LEARNING_SQL/csv_files/skills_job_dim.csv'
 WITH (FORMAT csv, HEADER true, DELIMITER ',', ENCODING 'UTF8');
 
-
-
-SELECT *
-FROM skills_job_dim
-LIMIT 100
