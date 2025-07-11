@@ -51,12 +51,22 @@ So I used SQL to break down job posting data and answer those questions with act
 SELECT job_title, salary_year_avg, company_name
 FROM job_postings_fact
 JOIN company_dim USING (company_id)
-WHERE job_title_short = 'Data Analyst'
-  AND job_location = 'Anywhere'
-  AND salary_year_avg IS NOT NULL
-ORDER BY salary_year_avg DESC
-LIMIT 10;
+WHERE job_title_short = 'Data Analyst' 
+      AND salary_year_avg IS NOT NULL
+ORDER BY salary_year_avg DESC;
 ```
+
+![Top Paying Roles](Data Analysis/Graph_Question_1.png)
+
+the above graph shows that "Average Data Analyst Salary by Country", i selected the top 10 Salary by country, which those country are having more than or equal to 10 job counts, to avoid outlier or too less sample. From the graph, we observe that the United States having the most opportunities in data anlyst roles( it might be affect by this data was most collected by united states,most of the fillers woring in the united states).
+
+Besides, if u run the sql code, we find out These high-paying roles are often senior-level, director-level, or head-of-department positions, not entry-level data analyst jobs, like some of the actual job titles are senior or managerial roles:
+"Head of Data Analytics"
+"Director of Analytics"
+"Sr Data Analyst"
+"HC Data Analyst, Senior"
+These reflect leadership, experience, and domain expertise — hence higher pay.
+🧠 Insight: If you're aiming for top-paying roles, growing into leadership or specialized domains (e.g., healthcare, safety, infrastructure) boosts salary significantly.
 
 ### 2. Skills Required for Top-Paying Jobs
 ```sql
