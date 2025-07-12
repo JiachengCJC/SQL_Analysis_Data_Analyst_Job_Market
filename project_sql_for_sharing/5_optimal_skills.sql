@@ -10,8 +10,7 @@ WITH skills_demand AS(
     INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
     WHERE
         job_title_short = 'Data Analyst' AND
-        salary_year_avg IS NOT NULL AND
-        job_work_from_home = TRUE
+        salary_year_avg IS NOT NULL 
     GROUP BY
         skills_dim.skill_id
 ),
@@ -24,8 +23,7 @@ average_salary AS(
     INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
     WHERE
         job_title_short = 'Data Analyst' AND
-        salary_year_avg IS NOT NULL AND
-        job_work_from_home = TRUE
+        salary_year_avg IS NOT NULL
     GROUP BY
         skills_job_dim.skill_id
 )

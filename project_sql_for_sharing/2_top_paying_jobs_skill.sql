@@ -11,7 +11,7 @@ WITH top_paying_jobs AS (
         job_postings_fact 
     LEFT JOIN company_dim ON job_postings_fact.company_id = company_dim.company_id
     WHERE
-        job_title = 'Data Analyst' AND
+        job_title_short = 'Data Analyst' AND
         salary_year_avg IS NOT NULL
     ORDER BY
         salary_year_avg DESC
@@ -33,8 +33,13 @@ Must-Have Skills: Python, SQL, R, Excel / Tableau / Power BI
 
 Nice-to-Have: Pandas, Scikit-learn, Looker, AWS, BigQuery, Kubernetes
 
+Calculate Upper Quartile Position:
 
-Additional: knowing each job_id their skills required
+SELECT
+  PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY salary_year_avg) AS q3_salary
+FROM top_paying_jobs;
+
+Additional: Show each job_id with their required skills (using aggregation)
 
 SELECT 
     top_paying_jobs.job_id,
