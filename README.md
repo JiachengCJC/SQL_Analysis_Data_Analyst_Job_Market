@@ -40,6 +40,7 @@ So I used SQL to break down job posting data and answer those questions with act
 - **SQL** – to query and explore the job data  
 - **PostgreSQL** – for handling and storing the database  
 - **VS Code** – for writing and testing SQL scripts  
+- **Excel** – for further cleaning and filtering the dataset, and to create all the charts used in this project for data visualization  
 - **Git & GitHub** – for version control and sharing my work  
 
 ---
@@ -56,15 +57,13 @@ SELECT
     job_schedule_type,
     salary_year_avg,
     job_posted_date,
-    name as company_name
-FROM 
-    job_postings_fact 
-LEFT JOIN company_dim ON job_postings_fact.company_id = company_dim.company_id
-WHERE
-    job_title_short = 'Data Analyst' AND
-    salary_year_avg IS NOT NULL
-ORDER BY
-    salary_year_avg DESC
+    name AS company_name
+FROM job_postings_fact 
+LEFT JOIN company_dim 
+    ON job_postings_fact.company_id = company_dim.company_id
+WHERE job_title_short = 'Data Analyst'
+  AND salary_year_avg IS NOT NULL
+ORDER BY salary_year_avg DESC;
 ```
 ![Top Paying Role](Data_Analysis/Graph_Question_1.png)
 
@@ -87,31 +86,32 @@ By running the SQL query, I found that many of the **top-paying roles** are not 
 ### 2. Skills Required for Top-Paying Jobs
 ```sql
 WITH top_paying_jobs AS (
-
     SELECT  
         job_id,
         job_title,
         salary_year_avg,
-        name as company_name
-    FROM 
-        job_postings_fact 
-    LEFT JOIN company_dim ON job_postings_fact.company_id = company_dim.company_id
-    WHERE
-        job_title_short = 'Data Analyst' AND
-        salary_year_avg IS NOT NULL
-    ORDER BY
-        salary_year_avg DESC
+        name AS company_name
+    FROM job_postings_fact 
+    LEFT JOIN company_dim 
+        ON job_postings_fact.company_id = company_dim.company_id
+    WHERE job_title_short = 'Data Analyst'
+      AND salary_year_avg IS NOT NULL
+    ORDER BY salary_year_avg DESC
     LIMIT 10
 )
 
 SELECT 
-    top_paying_jobs.*,
-    skills
-FROM top_paying_jobs
-INNER JOIN skills_job_dim ON top_paying_jobs.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-ORDER BY 
-    salary_year_avg DESC
+    tpj.job_id,
+    tpj.job_title,
+    tpj.salary_year_avg,
+    tpj.company_name,
+    sd.skills
+FROM top_paying_jobs tpj
+INNER JOIN skills_job_dim sjd 
+    ON tpj.job_id = sjd.job_id
+INNER JOIN skills_dim sd 
+    ON sjd.skill_id = sd.skill_id
+ORDER BY tpj.salary_year_avg DESC;
 ```
 ## 💼 Skills in Top-Paying Data Analyst Roles
 
@@ -157,7 +157,9 @@ These tools are not only frequently listed in high-paying job postings, but also
 
 ### 3. Most In-Demand Skills
 ```sql
-SELECT skills, COUNT(*) AS demand_count
+SELECT 
+    skills, 
+    COUNT(*) AS demand_count
 FROM job_postings_fact
 JOIN skills_job_dim USING (job_id)
 JOIN skills_dim USING (skill_id)
@@ -189,17 +191,16 @@ This query is a simplified (or downgraded) version of the earlier analysis on to
 ```sql
 SELECT 
     skills,
-    ROUND(AVG(salary_year_avg),2) AS avg_salary
+    ROUND(AVG(salary_year_avg), 2) AS avg_salary
 FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-WHERE
-    job_title_short = 'Data Analyst' AND
-    salary_year_avg IS NOT NULL
-GROUP BY
-    skills
-ORDER BY
-    avg_salary DESC
+INNER JOIN skills_job_dim 
+    ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim 
+    ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE job_title_short = 'Data Analyst'
+  AND salary_year_avg IS NOT NULL
+GROUP BY skills
+ORDER BY avg_salary DESC
 LIMIT 25;
 ```
 
@@ -219,9 +220,6 @@ LIMIT 25;
 | Twilio      | $138,500       |
 > _Note: These salaries are based on job postings that listed average salary. Some results may be skewed by niche or senior-level roles._
 
-
-
-
 ### Top Skills by Average Salary for Data Analysts
 
 This analysis shows which skills are linked to higher average salaries in data analyst roles. Some skills like **SVN**, **Solidity**, and **Golang** appear at the top, but they might come from a few senior or niche job postings.
@@ -233,7 +231,10 @@ It suggests that picking up some of these skills — especially those related to
 
 ### 5. Most Optimal Skills (High Salary + High Demand)
 ```sql
-SELECT skills, COUNT(*) AS demand_count, ROUND(AVG(salary_year_avg), 0) AS avg_salary
+SELECT 
+    skills, 
+    COUNT(*) AS demand_count, 
+    ROUND(AVG(salary_year_avg), 0) AS avg_salary
 FROM job_postings_fact
 JOIN skills_job_dim USING (job_id)
 JOIN skills_dim USING (skill_id)
@@ -245,24 +246,57 @@ HAVING COUNT(*) > 10
 ORDER BY avg_salary DESC
 LIMIT 10;
 ```
+![Optimal skills](Data_Analysis/Graph_Question_5.png)
+### 🔍 Insight: Most Optimal Skills to Learn (High Demand + High Salary)
+
+This analysis combines both **salary** and **demand** to help identify the most valuable skills for data analysts to learn. From the results:
+
+- The most **in-demand** skills are:
+  - `SQL` (3,083 jobs, ~$96k)
+  - `Excel` (2,143 jobs, ~$86k)
+  - `Python` (1,840 jobs, ~$101k)
+  - `Tableau` (1,659 jobs, ~$98k)
+  - `R` (1,073 jobs, ~$99k)
+
+These are must-have skills that appear frequently in job postings and offer competitive salaries.
+
+- Some skills are **less common but offer very high pay**, making them strong candidates for upskilling:
+  - `Snowflake` (~$112k)
+  - `Spark` (~$113k)
+  - `AWS` (~$106k)
+  - `Azure` (~$105k)
+  - `Looker` (~$104k)
+
+These tools may reflect more **technical or cloud-based roles**, and could give a competitive edge in a more senior or specialized position.
+
+---
+
+### 💡 Key Takeaways
+
+- Start with **core skills**: SQL, Excel, Python, Tableau — high demand and solid salaries.
+- To stand out and earn more, consider adding **cloud tools** (AWS, Snowflake, Azure) or **big data frameworks** (Spark).
+- This is a more **balanced and beginner-friendly** version of earlier skill-salary analysis — helpful for prioritizing your learning path.
 
 ---
 
 ## 📘 What I Learned
 
-- How to build SQL queries to answer business questions
-- How to use `JOIN`, `GROUP BY`, `CTE`, and `HAVING` clauses effectively
-- How to combine different metrics (salary + demand) for better insights
-- How to clean and analyze structured job data
+- How to write and structure **SQL queries** to answer real-world business and career questions  
+- Practical use of `JOIN`, `GROUP BY`, `CTE`, `HAVING`, and aggregation functions to analyze multi-table job data  
+- How to combine different metrics like **salary** and **demand** to extract actionable insights  
+- How to clean and standardize messy data using **Power Query** (e.g., unifying inconsistent skill names)  
+- How to build clear and insightful **visualizations** in Excel to communicate findings  
+- How to translate raw job data into a personal learning roadmap as an aspiring data analyst  
 
 ---
 
 ## ✅ Conclusion
 
-- **SQL** is the most important skill — both high paying and high demand
-- **Python, Excel, Tableau** are essential to most data analyst jobs
-- Learning **cloud tools** (like Snowflake, BigQuery, AWS) can increase salary potential
-- Focus on skills that are **both demanded and well-paid** for best ROI
+- **SQL** is the most valuable skill — it’s both highly demanded and consistently linked to strong salaries  
+- **Python**, **Excel**, **Tableau**, and **Power BI** are essential tools for most data analyst roles  
+- Learning **cloud-based tools** (e.g., Snowflake, Spark, AWS) can help you access more technical and higher-paying opportunities  
+- The best strategy is to focus on skills that are **both in-demand and high-paying**, to maximize career growth and ROI  
+- This project showed me how data can inform not just businesses — but also personal career decisions  
 
 ---
 
@@ -271,13 +305,14 @@ LIMIT 10;
 - 📂 SQL Scripts: [`project_sql_for_sharing`](/project_sql_for_sharing/)  
 - 📊 Dataset: [CSV on Google Drive](https://drive.google.com/file/d/15gLH5R3ZN4HE7mxNLHvGt7Wk_kqYp_Xc/view?usp=sharing)
 
+📝 **Note**: All visualizations in this project are based on refined SQL queries.  
+For better accuracy and insight, I removed artificial limits (like `LIMIT 10`) and used the **full dataset** to calculate averages, rankings, and demand counts.
+
 ---
 
-## 📈 Visuals Coming Soon
+🙏 **Thank you for reading!**  
+Hope this project gave you useful insights into the data analyst job market.
 
-- Top 10 job salaries (bar chart)  
-- Most required skills for high-paying jobs  
-- Most in-demand skills  
-- Highest salary by skill  
-- Optimal skills (salary vs demand scatter plot)  
+---
+
 
