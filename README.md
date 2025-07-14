@@ -305,8 +305,10 @@ These tools may reflect more **technical or cloud-based roles**, and could give 
 - 📂 SQL Scripts: [`project_sql_for_sharing`](/project_sql_for_sharing/)  
 - 📊 Dataset: [CSV on Google Drive](https://drive.google.com/file/d/15gLH5R3ZN4HE7mxNLHvGt7Wk_kqYp_Xc/view?usp=sharing)
 
-📝 **Note**: All visualizations in this project are based on refined SQL queries.  
-For better accuracy and insight, I removed artificial limits (like `LIMIT 10`) and used the **full dataset** to calculate averages, rankings, and demand counts.
+📝 **Note**:
+- All visualizations in this project are based on refined SQL queries.  
+  For better accuracy and insight, I removed artificial limits (like `LIMIT 10`) and used the **full dataset** to calculate averages, rankings, and demand counts.
+- The dataset and charts used for visualization are all located in the `Data_Analysis` folder. This folder also contains the Excel workbook where I did the cleaning, transformation, and plotting.
 
 ---
 
